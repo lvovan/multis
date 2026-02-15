@@ -1,0 +1,35 @@
+.playerList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.newPlayerButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  background: transparent;
+  color: #1565C0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.newPlayerButton:hover {
+  border-color: #1565C0;
+  background: #E3F2FD;
+}
+
+.newPlayerButton:focus-visible {
+  outline: 3px solid #1565C0;
+  outline-offset: 2px;
+}

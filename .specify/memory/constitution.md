@@ -1,23 +1,49 @@
 <!--
   Sync Impact Report
   ===================
-  Version change: 1.0.0 → 1.1.0 (MINOR — material tech-stack change)
+  Version change: 1.1.0 → 2.0.0 (MAJOR — removes backend architecture)
+  Modified principles:
+    - IV. Monolith Simplicity → IV. Static SPA
+        Removed all FastAPI/backend/Azure Web App references.
+        The application is a pure React single-page application
+        served as static files. No server-side code exists.
+    - V. Test-First (unchanged name)
+        Removed pytest and API contract test references. All
+        tests use Vitest and React Testing Library. Added
+        mandatory axe-core accessibility tests.
   Modified sections:
     - Technology Stack & Constraints:
-        Database bullet replaced with Browser Storage bullet.
-        No server-side persistence; all data lives in browser
-        storage and is device-dependent.
+        Removed Backend (Python 3.11+, FastAPI) entirely.
+        Removed Azure Web App + FastAPI static-serving deployment.
+        Added deployment as static site (any static host).
+        Removed `/api` prefix references.
+    - Development Workflow:
+        Removed Python linting/formatting tools (Ruff, Black).
+        CI Pipeline now references ESLint, Prettier, and
+        TypeScript type-checking only.
   Added sections: None
   Removed sections: None
   Templates requiring updates:
     - .specify/templates/plan-template.md ✅ no updates needed
+        Template already offers single-project and web-app
+        structure options. Plan authors select the appropriate
+        layout (single `frontend/` directory).
     - .specify/templates/spec-template.md ✅ no updates needed
     - .specify/templates/tasks-template.md ✅ no updates needed
+        Template already notes "adjust based on plan.md
+        structure". Task authors use `frontend/` paths only.
     - .specify/templates/checklist-template.md ✅ no updates needed
-  Follow-up TODOs: None
+  Follow-up TODOs:
+    - Remove `backend/` directory from the repository.
+    - Update existing spec/plan docs that reference FastAPI or
+      backend architecture.
 
   Previous Sync Impact Reports
   ----------------------------
+  v1.1.0 (2026-02-14): Technology Stack & Constraints updated.
+    Database bullet replaced with Browser Storage bullet.
+    No server-side persistence; all data lives in browser
+    storage and is device-dependent.
   v1.0.0 (2026-02-14): Initial ratification. 5 principles,
     Technology Stack & Constraints, Development Workflow,
     Governance sections added.
@@ -30,7 +56,7 @@
 ### I. Accessibility First (NON-NEGOTIABLE)
 
 - Every UI element MUST meet WCAG 2.1 AA compliance at minimum.
-- Text MUST use large, readable fonts (minimum 16px base) with
+- Text MUST use large, readable fonts (minimum 16 px base) with
   high-contrast color combinations.
 - All interactive elements MUST be operable via keyboard, touch,
   and assistive technologies (screen readers, switch controls).
@@ -58,7 +84,7 @@
 ### III. Responsive Design
 
 - All pages and components MUST render correctly on viewports
-  from 320px (phone) to 1920px (desktop).
+  from 320 px (phone) to 1920 px (desktop).
 - Touch targets MUST be at least 44×44 CSS pixels per WCAG 2.5.5.
 - Layout MUST use a mobile-first approach: design for the
   smallest screen first, then progressively enhance for larger
@@ -67,40 +93,40 @@
 - Rationale: Children access the app on a mix of phones, tablets,
   and classroom PCs. Every device MUST deliver a usable experience.
 
-### IV. Monolith Simplicity
+### IV. Static SPA
 
-- The application MUST remain a single deployable unit: one
-  Azure Web App hosting both the FastAPI backend and the React
-  frontend (served as static files).
-- No microservices, no separate BFF, no external API gateway
+- The application MUST be a pure client-side React single-page
+  application. There is no backend server.
+- The production build MUST consist entirely of static assets
+  (HTML, CSS, JS, images) deployable to any static hosting
+  provider (e.g., Azure Static Web Apps, GitHub Pages, Vercel,
+  Netlify, or a simple CDN).
+- No server-side rendering (SSR), no server-side API, no BFF
   unless a constitutional amendment explicitly justifies it.
-- The repository MUST follow a monorepo layout with clear
-  `backend/` and `frontend/` top-level directories.
-- Shared types or contracts between frontend and backend MUST
-  live in clearly documented locations within the repo.
-- Rationale: A single deployment target eliminates operational
-  complexity and keeps the project approachable for a small team.
+- The repository MUST contain a single `frontend/` top-level
+  directory for all application source code.
+- Rationale: A static SPA eliminates server-side operational
+  complexity and keeps the project approachable for a small
+  team. All logic runs in the browser.
 
 ### V. Test-First
 
 - Every new feature MUST have acceptance tests derived from
   user-story scenarios before implementation begins.
-- Backend tests use pytest; frontend tests use Vitest (or Jest)
-  and React Testing Library.
-- Integration tests MUST cover API contract boundaries between
-  frontend and backend.
+- Tests use Vitest and React Testing Library.
 - Tests MUST be written to fail first (red), then implementation
   makes them pass (green), then refactor.
+- Accessibility tests using axe-core MUST be included for every
+  screen and interactive component.
 - Rationale: Tests protect young users from regressions and
   provide living documentation of expected behavior.
 
 ## Technology Stack & Constraints
 
 - **Frontend**: React (with TypeScript), bundled via Vite.
-- **Backend**: Python 3.11+, FastAPI framework.
-- **Deployment**: Single Azure Web App. The FastAPI server serves
-  the React production build as static files and exposes the API
-  under an `/api` prefix.
+- **Deployment**: Static site. The Vite production build outputs
+  static files to `frontend/dist/` which can be served by any
+  static hosting provider. No server-side runtime is required.
 - **Persistence**: All user data (scores, player names,
   preferences, progress) MUST be stored in browser storage
   (localStorage or IndexedDB). There is no server-side database.
@@ -125,17 +151,16 @@
   request only.
 - **Code Review**: Every pull request MUST be reviewed for
   constitution compliance before merge.
-- **CI Pipeline**: Pull requests MUST pass linting (Ruff for
-  Python, ESLint for TypeScript), formatting (Black/Ruff for
-  Python, Prettier for TypeScript), and the full test suite
-  before merge is permitted.
+- **CI Pipeline**: Pull requests MUST pass linting (ESLint),
+  formatting (Prettier), TypeScript type-checking (`tsc`), and
+  the full test suite before merge is permitted.
 - **Commit Messages**: Follow Conventional Commits format
   (`feat:`, `fix:`, `docs:`, `chore:`, etc.).
 - **Quality Gates**:
   1. All tests green.
   2. No linting or type-check errors.
   3. Accessibility audit passes (axe-core or Lighthouse a11y ≥ 90).
-  4. Responsive spot-check on 320px and 1280px viewports.
+  4. Responsive spot-check on 320 px and 1280 px viewports.
 
 ## Governance
 
@@ -153,4 +178,4 @@
 - Complexity beyond what is prescribed here MUST be justified
   in the relevant plan or spec document.
 
-**Version**: 1.1.0 | **Ratified**: 2026-02-14 | **Last Amended**: 2026-02-14
+**Version**: 2.0.0 | **Ratified**: 2026-02-14 | **Last Amended**: 2026-02-14

@@ -1,0 +1,71 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: white;
+  border-bottom: 2px solid #e0e0e0;
+  min-height: 44px;
+}
+
+.playerInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.avatar {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.greeting {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.switchButton {
+  padding: 8px 16px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  background: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.switchButton:hover {
+  border-color: #1565C0;
+  color: #1565C0;
+}
+
+.switchButton:focus-visible {
+  outline: 3px solid #1565C0;
+  outline-offset: 2px;
+}
+
+@media (max-width: 320px) {
+  .header {
+    padding: 8px 12px;
+  }
+
+  .greeting {
+    font-size: 0.875rem;
+  }
+
+  .switchButton {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+  }
+}
