@@ -133,7 +133,7 @@ export default function MainPage() {
 
             <AnswerInput
               onSubmit={handleSubmit}
-              disabled={gameState.currentPhase !== 'input'}
+              acceptingInput={gameState.currentPhase === 'input'}
             />
           </div>
         )}
