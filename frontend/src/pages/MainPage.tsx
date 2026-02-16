@@ -118,9 +118,10 @@ export default function MainPage() {
 
             <FormulaDisplay formula={currentRound.formula} />
 
-            {gameState.currentPhase === 'input' && (
-              <AnswerInput onSubmit={handleSubmit} disabled={false} />
-            )}
+            <AnswerInput
+              onSubmit={handleSubmit}
+              disabled={gameState.currentPhase !== 'input'}
+            />
 
             <div aria-live="assertive" role="status">
               {gameState.currentPhase === 'feedback' &&
