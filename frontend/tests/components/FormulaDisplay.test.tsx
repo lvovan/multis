@@ -57,4 +57,52 @@ describe('FormulaDisplay', () => {
     const container = screen.getByRole('math') || screen.getByLabelText(/multiplication/i);
     expect(container).toBeInTheDocument();
   });
+
+  describe('playerAnswer prop', () => {
+    it('shows player answer instead of "?" when playerAnswer is provided (hiddenPosition C)', () => {
+      render(<FormulaDisplay formula={baseFormula} playerAnswer={38} />);
+
+      expect(screen.getByText('3')).toBeInTheDocument();
+      expect(screen.getByText('7')).toBeInTheDocument();
+      expect(screen.getByText('38')).toBeInTheDocument();
+      // '?' should not be rendered
+      expect(screen.queryByText('?')).not.toBeInTheDocument();
+    });
+
+    it('shows player answer instead of "?" when playerAnswer is provided (hiddenPosition A)', () => {
+      const formula: Formula = { ...baseFormula, hiddenPosition: 'A' };
+      render(<FormulaDisplay formula={formula} playerAnswer={5} />);
+
+      expect(screen.getByText('5')).toBeInTheDocument();
+      expect(screen.getByText('7')).toBeInTheDocument();
+      expect(screen.getByText('21')).toBeInTheDocument();
+      expect(screen.queryByText('?')).not.toBeInTheDocument();
+    });
+
+    it('shows player answer instead of "?" when playerAnswer is provided (hiddenPosition B)', () => {
+      const formula: Formula = { ...baseFormula, hiddenPosition: 'B' };
+      render(<FormulaDisplay formula={formula} playerAnswer={9} />);
+
+      expect(screen.getByText('3')).toBeInTheDocument();
+      expect(screen.getByText('9')).toBeInTheDocument();
+      expect(screen.getByText('21')).toBeInTheDocument();
+      expect(screen.queryByText('?')).not.toBeInTheDocument();
+    });
+
+    it('still shows "?" when playerAnswer is undefined', () => {
+      render(<FormulaDisplay formula={baseFormula} />);
+
+      expect(screen.getByText('?')).toBeInTheDocument();
+    });
+
+    it('aria-label includes player answer value when playerAnswer is provided', () => {
+      render(<FormulaDisplay formula={baseFormula} playerAnswer={38} />);
+
+      const math = screen.getByRole('math');
+      expect(math).toHaveAttribute(
+        'aria-label',
+        expect.stringContaining('38'),
+      );
+    });
+  });
 });

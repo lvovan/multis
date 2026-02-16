@@ -11,8 +11,8 @@ import PlayerList from '../../src/components/WelcomeScreen/PlayerList';
 import ClearAllConfirmation from '../../src/components/ClearAllConfirmation/ClearAllConfirmation';
 import FormulaDisplay from '../../src/components/GamePlay/FormulaDisplay/FormulaDisplay';
 import AnswerInput from '../../src/components/GamePlay/AnswerInput/AnswerInput';
-import InlineFeedback from '../../src/components/GamePlay/InlineFeedback/InlineFeedback';
 import CountdownBar from '../../src/components/GamePlay/CountdownBar/CountdownBar';
+import GameStatus from '../../src/components/GamePlay/GameStatus/GameStatus';
 import ScoreSummary from '../../src/components/GamePlay/ScoreSummary/ScoreSummary';
 import RecentHighScores from '../../src/components/GamePlay/RecentHighScores/RecentHighScores';
 import ProgressionGraph from '../../src/components/GamePlay/ProgressionGraph/ProgressionGraph';
@@ -104,22 +104,6 @@ describe('Accessibility — Gameplay (axe)', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('InlineFeedback (correct) has no a11y violations', async () => {
-    const { container } = render(
-      <InlineFeedback isCorrect={true} correctAnswer={21} />,
-    );
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
-  it('InlineFeedback (incorrect) has no a11y violations', async () => {
-    const { container } = render(
-      <InlineFeedback isCorrect={false} correctAnswer={21} />,
-    );
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
   it('CountdownBar has no a11y violations', async () => {
     const barRef = createRef<HTMLDivElement>();
     const { container } = render(
@@ -187,6 +171,57 @@ describe('Accessibility — Score Display (axe)', () => {
     ];
     const { container } = render(
       <ProgressionGraph history={history} />,
+    );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+});
+
+describe('Accessibility — GameStatus Feedback (axe)', () => {
+  const feedbackProps = {
+    roundNumber: 3,
+    totalRounds: 10,
+    score: 15,
+    timerRef: createRef<HTMLSpanElement>(),
+    barRef: createRef<HTMLDivElement>(),
+    isReplay: false,
+    completedRound: 3,
+  };
+
+  it('GameStatus feedback (correct) has no a11y violations', async () => {
+    const { container } = render(
+      <GameStatus
+        {...feedbackProps}
+        currentPhase="feedback"
+        isCorrect={true}
+        correctAnswer={21}
+      />,
+    );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('GameStatus feedback (incorrect) has no a11y violations', async () => {
+    const { container } = render(
+      <GameStatus
+        {...feedbackProps}
+        currentPhase="feedback"
+        isCorrect={false}
+        correctAnswer={42}
+      />,
+    );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('GameStatus input mode has no a11y violations', async () => {
+    const { container } = render(
+      <GameStatus
+        {...feedbackProps}
+        currentPhase="input"
+        isCorrect={null}
+        correctAnswer={null}
+      />,
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();

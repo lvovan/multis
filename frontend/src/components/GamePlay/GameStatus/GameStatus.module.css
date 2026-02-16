@@ -8,6 +8,8 @@
   border-radius: 8px;
   font-size: 0.95rem;
   flex-wrap: wrap;
+  min-height: 5rem;
+  box-sizing: border-box;
 }
 
 .roundInfo {
@@ -52,5 +54,89 @@
     font-size: 0.9rem;
     gap: 8px;
     padding: 8px 12px;
+    min-height: 4rem;
+  }
+
+  .feedbackIcon {
+    font-size: 1.3rem;
+  }
+
+  .feedbackText {
+    font-size: 1rem;
+  }
+
+  .feedbackAnswer {
+    font-size: 0.8rem;
+  }
+
+  .completionCount {
+    font-size: 0.75rem;
+  }
+}
+
+/* Feedback mode styles */
+
+.feedbackCorrect {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.feedbackIncorrect {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.feedbackContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  text-align: center;
+  animation: feedbackFadeIn 0.2s ease-out;
+}
+
+.feedbackMain {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.feedbackIcon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.feedbackText {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.feedbackAnswer {
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.completionCount {
+  font-size: 0.85rem;
+}
+
+@keyframes feedbackFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feedbackContent {
+    animation: none;
   }
 }

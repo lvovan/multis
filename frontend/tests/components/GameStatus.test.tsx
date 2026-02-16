@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import { createRef } from 'react';
 import GameStatus from '../../src/components/GamePlay/GameStatus/GameStatus';
 
@@ -12,6 +13,10 @@ function defaultProps(overrides?: Partial<Parameters<typeof GameStatus>[0]>) {
     timerRef: createRef<HTMLSpanElement>(),
     barRef: createRef<HTMLDivElement>(),
     isReplay: false,
+    currentPhase: 'input' as const,
+    isCorrect: null,
+    correctAnswer: null,
+    completedRound: 1,
     ...overrides,
   };
 }
@@ -81,5 +86,282 @@ describe('GameStatus', () => {
     const barRef = createRef<HTMLDivElement>();
     render(<GameStatus {...defaultProps({ barRef })} />);
     expect(barRef.current).toBeInstanceOf(HTMLDivElement);
+  });
+
+  // --- T003: Feedback mode rendering tests ---
+
+  describe('feedback mode rendering', () => {
+    it('renders "✓" icon and "Correct!" text when correct', () => {
+      render(
+        <GameStatus
+          {...defaultProps({
+            currentPhase: 'feedback',
+            isCorrect: true,
+            correctAnswer: 21,
+            completedRound: 3,
+          })}
+        />,
+      );
+
+      expect(screen.getByText('✓')).toBeInTheDocument();
+      expect(screen.getByText('Correct!')).toBeInTheDocument();
+    });
+
+    it('renders "✗" icon, "Not quite!", and correct answer when incorrect', () => {
+      render(
+        <GameStatus
+          {...defaultProps({
+            currentPhase: 'feedback',
+            isCorrect: false,
+            correctAnswer: 42,
+            completedRound: 5,
+          })}
+        />,
+      );
+
+      expect(screen.getByText('✗')).toBeInTheDocument();
+      expect(screen.getByText('Not quite!')).toBeInTheDocument();
+      expect(screen.getByText(/the answer was 42/i)).toBeInTheDocument();
+    });
+
+    it('renders completion count "Round X of Y completed"', () => {
+      render(
+        <GameStatus
+          {...defaultProps({
+            currentPhase: 'feedback',
+            isCorrect: true,
+            correctAnswer: 21,
+            completedRound: 3,
+            totalRounds: 10,
+          })}
+        />,
+      );
+
+      expect(screen.getByText(/Round 3 of 10 completed/)).toBeInTheDocument();
+    });
+
+    it('renders normal round/score/timer content when currentPhase is input', () => {
+      render(
+        <GameStatus
+          {...defaultProps({
+            currentPhase: 'input',
+            roundNumber: 4,
+            score: 15,
+          })}
+        />,
+      );
+
+      expect(screen.getByText(/Round 4 of 10/)).toBeInTheDocument();
+      expect(screen.getByText(/15/)).toBeInTheDocument();
+      expect(screen.queryByText('✓')).not.toBeInTheDocument();
+      expect(screen.queryByText('✗')).not.toBeInTheDocument();
+    });
+
+    it('hides round/score/timer content during feedback phase', () => {
+      render(
+        <GameStatus
+          {...defaultProps({
+            currentPhase: 'feedback',
+            isCorrect: true,
+            correctAnswer: 21,
+            completedRound: 3,
+            roundNumber: 3,
+            score: 15,
+          })}
+        />,
+      );
+
+      // Round/score text should not be visible
+      expect(screen.queryByText('Score:')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('timer')).not.toBeInTheDocument();
+    });
+
+    it('hides countdown bar during feedback phase', () => {
+      const { container } = render(
+        <GameStatus
+          {...defaultProps({
+            currentPhase: 'feedback',
+            isCorrect: true,
+            correctAnswer: 21,
+            completedRound: 1,
+          })}
+        />,
+      );
+
+      const progressbar = container.querySelector('[role="progressbar"]');
+      expect(progressbar).not.toBeInTheDocument();
+    });
+
+    it('does not show "The answer was" for correct responses', () => {
+      render(
+        <GameStatus
+          {...defaultProps({
+            currentPhase: 'feedback',
+            isCorrect: true,
+            correctAnswer: 21,
+            completedRound: 1,
+          })}
+        />,
+      );
+
+      expect(screen.queryByText(/the answer was/i)).not.toBeInTheDocument();
+    });
+
+    it('maintains same outer dimensions (no layout shift) via consistent container', () => {
+      const { container: inputContainer } = render(
+        <GameStatus {...defaultProps({ currentPhase: 'input' })} />,
+      );
+      const inputRoot = inputContainer.firstElementChild as HTMLElement;
+
+      const { container: feedbackContainer } = render(
+        <GameStatus
+          {...defaultProps({
+            currentPhase: 'feedback',
+            isCorrect: true,
+            correctAnswer: 21,
+            completedRound: 1,
+          })}
+        />,
+      );
+      const feedbackRoot = feedbackContainer.firstElementChild as HTMLElement;
+
+      // Both should have the same root element tag and similar structure (same container)
+      expect(inputRoot.tagName).toBe(feedbackRoot.tagName);
+      // Both should have the status class applied (same outer container)
+      expect(inputRoot.className).toContain('status');
+      expect(feedbackRoot.className).toContain('status');
+    });
+  });
+
+  // --- T004: Feedback mode accessibility tests ---
+
+  describe('feedback mode accessibility', () => {
+    it('feedback content has role="status" and aria-live="assertive"', () => {
+      render(
+        <GameStatus
+          {...defaultProps({
+            currentPhase: 'feedback',
+            isCorrect: true,
+            correctAnswer: 21,
+            completedRound: 1,
+          })}
+        />,
+      );
+
+      const status = screen.getByRole('status');
+      expect(status).toBeInTheDocument();
+      expect(status).toHaveAttribute('aria-live', 'assertive');
+    });
+
+    it('icon span has aria-hidden="true"', () => {
+      render(
+        <GameStatus
+          {...defaultProps({
+            currentPhase: 'feedback',
+            isCorrect: true,
+            correctAnswer: 21,
+            completedRound: 1,
+          })}
+        />,
+      );
+
+      const icon = screen.getByText('✓');
+      expect(icon).toHaveAttribute('aria-hidden', 'true');
+    });
+
+    it('passes axe accessibility check for correct feedback', async () => {
+      const { container } = render(
+        <GameStatus
+          {...defaultProps({
+            currentPhase: 'feedback',
+            isCorrect: true,
+            correctAnswer: 21,
+            completedRound: 3,
+          })}
+        />,
+      );
+
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    it('passes axe accessibility check for incorrect feedback', async () => {
+      const { container } = render(
+        <GameStatus
+          {...defaultProps({
+            currentPhase: 'feedback',
+            isCorrect: false,
+            correctAnswer: 42,
+            completedRound: 5,
+          })}
+        />,
+      );
+
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+  });
+
+  // --- T008: Replay feedback tests ---
+
+  describe('replay feedback mode', () => {
+    it('shows "Replay X of Y completed" when isReplay is true during feedback', () => {
+      render(
+        <GameStatus
+          {...defaultProps({
+            currentPhase: 'feedback',
+            isCorrect: true,
+            correctAnswer: 21,
+            completedRound: 2,
+            totalRounds: 4,
+            isReplay: true,
+          })}
+        />,
+      );
+
+      expect(screen.getByText(/Replay 2 of 4 completed/)).toBeInTheDocument();
+      expect(screen.queryByText(/Round/)).not.toBeInTheDocument();
+    });
+
+    it('uses same feedback colors and icons in replay mode (correct)', () => {
+      const { container } = render(
+        <GameStatus
+          {...defaultProps({
+            currentPhase: 'feedback',
+            isCorrect: true,
+            correctAnswer: 21,
+            completedRound: 1,
+            totalRounds: 3,
+            isReplay: true,
+          })}
+        />,
+      );
+
+      expect(screen.getByText('✓')).toBeInTheDocument();
+      expect(screen.getByText('Correct!')).toBeInTheDocument();
+      const root = container.firstElementChild as HTMLElement;
+      expect(root.className).toMatch(/feedbackCorrect/);
+    });
+
+    it('uses same feedback colors and icons in replay mode (incorrect)', () => {
+      const { container } = render(
+        <GameStatus
+          {...defaultProps({
+            currentPhase: 'feedback',
+            isCorrect: false,
+            correctAnswer: 48,
+            completedRound: 1,
+            totalRounds: 3,
+            isReplay: true,
+          })}
+        />,
+      );
+
+      expect(screen.getByText('✗')).toBeInTheDocument();
+      expect(screen.getByText('Not quite!')).toBeInTheDocument();
+      expect(screen.getByText(/the answer was 48/i)).toBeInTheDocument();
+      const root = container.firstElementChild as HTMLElement;
+      expect(root.className).toMatch(/feedbackIncorrect/);
+    });
   });
 });
