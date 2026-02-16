@@ -494,7 +494,10 @@ describe('MainPage — Scoring Display (US3)', () => {
     await user.type(input, '1');
     await user.click(screen.getByRole('button', { name: /submit/i }));
 
-    // After submitting, score should show points (feedback phase shows score)
+    // During feedback phase, score is hidden (panel shows feedback).
+    // Advance past feedback duration to see updated score in next round.
+    await vi.advanceTimersByTimeAsync(1300);
+
     // With fake timers, elapsed is ~0ms → tier 1 → 5 points
     expect(screen.getByText('5', { exact: true })).toBeInTheDocument();
   });
@@ -650,7 +653,7 @@ describe('MainPage — Inline Feedback (US2 round UX)', () => {
     expect(screen.getByRole('math')).toBeInTheDocument();
   });
 
-  it('InlineFeedback replaces formula during feedback phase', async () => {
+  it('feedback is shown in status panel during feedback phase', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     renderMainPage();
 
@@ -661,10 +664,11 @@ describe('MainPage — Inline Feedback (US2 round UX)', () => {
     await user.type(input, '1');
     await user.click(screen.getByRole('button', { name: /submit/i }));
 
-    // Formula should be replaced by feedback
-    expect(screen.queryByRole('math')).not.toBeInTheDocument();
+    // Formula should still be visible (answered formula with playerAnswer)
+    expect(screen.getByRole('math')).toBeInTheDocument();
+    // Feedback should appear in the status panel
     expect(screen.getByText('Correct!')).toBeInTheDocument();
-    // Feedback should have status role (InlineFeedback)
+    // Feedback should have status role (in GameStatus)
     expect(screen.getByRole('status')).toBeInTheDocument();
   });
 

@@ -8,7 +8,6 @@ import { FEEDBACK_DURATION_MS } from '../constants/scoring';
 import Header from '../components/Header/Header';
 import FormulaDisplay from '../components/GamePlay/FormulaDisplay/FormulaDisplay';
 import AnswerInput from '../components/GamePlay/AnswerInput/AnswerInput';
-import InlineFeedback from '../components/GamePlay/InlineFeedback/InlineFeedback';
 import GameStatus from '../components/GamePlay/GameStatus/GameStatus';
 import ScoreSummary from '../components/GamePlay/ScoreSummary/ScoreSummary';
 import RecentHighScores from '../components/GamePlay/RecentHighScores/RecentHighScores';
@@ -115,19 +114,21 @@ export default function MainPage() {
               timerRef={displayRef}
               barRef={barRef}
               isReplay={gameState.status === 'replay'}
+              currentPhase={gameState.currentPhase}
+              isCorrect={currentRound.isCorrect ?? null}
+              correctAnswer={correctAnswer}
+              completedRound={gameState.currentRoundIndex + 1}
             />
 
             <div data-testid="formula-area" style={{ minHeight: 88 }}>
-              {gameState.currentPhase === 'feedback' &&
-                currentRound.isCorrect !== null &&
-                correctAnswer !== null ? (
-                  <InlineFeedback
-                    isCorrect={currentRound.isCorrect}
-                    correctAnswer={correctAnswer}
-                  />
-                ) : (
-                  <FormulaDisplay formula={currentRound.formula} />
-                )}
+              <FormulaDisplay
+                formula={currentRound.formula}
+                playerAnswer={
+                  gameState.currentPhase === 'feedback'
+                    ? currentRound.playerAnswer ?? undefined
+                    : undefined
+                }
+              />
             </div>
 
             <AnswerInput

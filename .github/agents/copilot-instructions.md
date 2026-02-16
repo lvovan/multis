@@ -17,6 +17,8 @@ Auto-generated from all feature plans. Last updated: 2026-02-14
 - N/A (no data model changes) (007-numeric-keypad-input)
 - TypeScript 5.9.3, React 19.2.0 + React, React Router DOM 7.13, Vite 7.3.1 (008-round-ux-rework)
 - Browser localStorage (no changes needed for this feature) (008-round-ux-rework)
+- TypeScript 5.x / React 18 + React, Vite, CSS Modules (010-round-result-panel)
+- N/A (no persistence changes) (010-round-result-panel)
 
 - TypeScript 5.x (frontend), Python 3.11+ (backend — serves static files only for this feature) + React 18+, Vite (bundler), React Router (navigation), FastAPI (backend — static file serving only) (main)
 
@@ -37,9 +39,9 @@ cd src; pytest; ruff check .
 TypeScript 5.x (frontend): Follow standard conventions
 
 ## Recent Changes
+- 010-round-result-panel: Added TypeScript 5.x / React 18 + React, Vite, CSS Modules
 - 008-round-ux-rework: Added TypeScript 5.9.3, React 19.2.0 + React, React Router DOM 7.13, Vite 7.3.1
 - 007-numeric-keypad-input: Added TypeScript ~5.9.3, React 19.2, bundled via Vite 7.3 + React, React DOM, CSS Modules
-- 006-score-display: Added TypeScript ~5.9, React 19, Vite 7 + react-router-dom 7, vitest 4, @testing-library/react 16, vitest-axe
 
 
 <!-- MANUAL ADDITIONS START -->
