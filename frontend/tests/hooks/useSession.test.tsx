@@ -44,7 +44,7 @@ describe('useSession', () => {
       avatarId: 'cat',
       startedAt: 1000,
     };
-    sessionStorage.setItem('turbotiply_session', JSON.stringify(existingSession));
+    sessionStorage.setItem('multis_session', JSON.stringify(existingSession));
 
     renderWithProvider();
 
@@ -69,7 +69,7 @@ describe('useSession', () => {
 
     expect(screen.getByTestId('is-active').textContent).toBe('true');
     expect(screen.getByTestId('player-name').textContent).toBe('Mia');
-    expect(sessionStorage.getItem('turbotiply_session')).not.toBeNull();
+    expect(sessionStorage.getItem('multis_session')).not.toBeNull();
 
     vi.restoreAllMocks();
   });

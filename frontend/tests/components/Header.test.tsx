@@ -17,7 +17,7 @@ vi.mock('react-router-dom', async () => {
 
 function renderHeader(session: Session | null = null) {
   if (session) {
-    sessionStorage.setItem('turbotiply_session', JSON.stringify(session));
+    sessionStorage.setItem('multis_session', JSON.stringify(session));
   }
   return render(
     <MemoryRouter>
@@ -63,7 +63,7 @@ describe('Header', () => {
     await user.click(screen.getByRole('button', { name: /switch player/i }));
 
     expect(mockNavigate).toHaveBeenCalledWith('/');
-    expect(sessionStorage.getItem('turbotiply_session')).toBeNull();
+    expect(sessionStorage.getItem('multis_session')).toBeNull();
   });
 
   it('renders nothing when no session is active', () => {

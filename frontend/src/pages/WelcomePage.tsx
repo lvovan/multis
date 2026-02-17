@@ -41,7 +41,7 @@ export default function WelcomePage() {
         <div className={styles.languageArea}>
           <LanguageSwitcher />
         </div>
-        <h1 className={styles.title}>Turbotiply!</h1>
+        <h1 className={styles.title}>Multis!</h1>
         <div className={styles.storageWarning} role="alert">
           <p>{t('welcome.storageWarning')}</p>
           <p>{t('welcome.storageWarningDetail')}</p>
@@ -90,7 +90,7 @@ export default function WelcomePage() {
       <div className={styles.languageArea}>
         <LanguageSwitcher />
       </div>
-      <h1 className={styles.title}>Turbotiply!</h1>
+      <h1 className={styles.title}>Multis!</h1>
       <p className={styles.subtitle}>
         {shouldShowForm ? t('welcome.subtitle') : t('welcome.subtitleReturning')}
       </p>
