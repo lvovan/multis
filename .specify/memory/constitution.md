@@ -49,7 +49,7 @@
     Governance sections added.
 -->
 
-# Turbotiply Constitution
+# Multis Constitution
 
 ## Core Principles
 

@@ -53,7 +53,7 @@ export interface Session {
   startedAt: number;
 }
 
-/** Top-level object persisted in localStorage under key "turbotiply_players". */
+/** Top-level object persisted in localStorage under key "multis_players". */
 export interface PlayerStore {
   /** Schema version for migration support (starts at 1). */
   version: number;

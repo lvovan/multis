@@ -3,7 +3,7 @@ import type { Player, PlayerStore, GameRecord, RoundResult, GameMode } from '../
 export type { GameRecord } from '../types/player';
 
 /** localStorage key for player data. */
-export const STORAGE_KEY = 'turbotiply_players';
+export const STORAGE_KEY = 'multis_players';
 
 /** Current schema version. */
 const CURRENT_VERSION = 5;
@@ -32,7 +32,7 @@ export class StorageUnavailableError extends Error {
  */
 export function isStorageAvailable(): boolean {
   try {
-    const testKey = '__turbotiply_test__';
+    const testKey = '__multis_test__';
     localStorage.setItem(testKey, '1');
     localStorage.removeItem(testKey);
     return true;

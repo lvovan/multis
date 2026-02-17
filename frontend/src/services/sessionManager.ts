@@ -2,7 +2,7 @@ import type { Player, Session } from '../types/player';
 import { touchPlayer } from './playerStorage';
 
 /** sessionStorage key for active session. */
-export const SESSION_KEY = 'turbotiply_session';
+export const SESSION_KEY = 'multis_session';
 
 /**
  * Start a new session for the given player.

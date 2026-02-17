@@ -14,12 +14,12 @@ import pt from './locales/pt';
 // All dictionaries bundled at build time — no runtime fetching.
 const dictionaries: Record<Language, Dictionary> = { en, fr, es, ja, de, pt };
 
-const STORAGE_KEY = 'turbotiply_lang';
+export const LANG_STORAGE_KEY = 'multis_lang';
 
 /** Read stored language preference from localStorage. */
 function getStoredLanguage(): Language | null {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(LANG_STORAGE_KEY);
     if (stored && SUPPORTED_LANGUAGES.some((l) => l.code === stored)) {
       return stored as Language;
     }
@@ -32,7 +32,7 @@ function getStoredLanguage(): Language | null {
 /** Persist language preference to localStorage. */
 function storeLanguage(lang: Language): void {
   try {
-    localStorage.setItem(STORAGE_KEY, lang);
+    localStorage.setItem(LANG_STORAGE_KEY, lang);
   } catch {
     // localStorage unavailable — silently fail
   }
@@ -61,7 +61,7 @@ interface LanguageProviderProps {
  * Wraps the app to provide language context.
  *
  * On mount:
- *   1. Reads localStorage('turbotiply_lang') → if valid, use it
+ *   1. Reads localStorage('multis_lang') → if valid, use it
  *   2. Else, calls detectLanguage() → uses browser preference
  *   3. Sets document.documentElement.lang
  */

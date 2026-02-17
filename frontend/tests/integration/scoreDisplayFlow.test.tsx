@@ -51,7 +51,7 @@ function setUpActiveSession() {
     avatarId: 'rocket',
     startedAt: Date.now(),
   };
-  sessionStorage.setItem('turbotiply_session', JSON.stringify(session));
+  sessionStorage.setItem('multis_session', JSON.stringify(session));
 }
 
 function renderMainPage() {
