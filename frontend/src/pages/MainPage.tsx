@@ -16,6 +16,7 @@ import RecentHighScores from '../components/GamePlay/RecentHighScores/RecentHigh
 import ProgressionGraph from '../components/GamePlay/ProgressionGraph/ProgressionGraph';
 import ModeSelector from '../components/GamePlay/ModeSelector/ModeSelector';
 import { useTranslation } from '../i18n';
+import { trackGameStarted, trackAnswerSubmitted, trackGameCompleted, trackReplayStarted, trackReplayCompleted } from '../services/clarityService';
 import styles from './MainPage.module.css';
 
 /**
@@ -31,13 +32,29 @@ export default function MainPage() {
   const { displayRef, barRef, start, stop, reset } = useRoundTimer();
   const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scorePersistedRef = useRef(false);
+  const prevStatusRef = useRef(gameState.status);
 
-  // Persist score when game completes
+  // Track replay phase transitions
+  useEffect(() => {
+    const prev = prevStatusRef.current;
+    prevStatusRef.current = gameState.status;
+
+    if (gameState.status === 'replay' && prev !== 'replay') {
+      trackReplayStarted(gameState.replayQueue.length);
+    }
+    if (prev === 'replay' && gameState.status === 'completed') {
+      trackReplayCompleted();
+    }
+  }, [gameState.status, gameState.replayQueue.length]);
+
+  // Persist score when game completes + track telemetry
   useEffect(() => {
     if (gameState.status === 'completed' && session && !scorePersistedRef.current) {
       scorePersistedRef.current = true;
       const roundResults = extractRoundResults(gameState.rounds);
       saveGameRecord(session.playerName, gameState.score, roundResults, gameMode);
+      const correctCount = gameState.rounds.filter((r) => r.isCorrect).length;
+      trackGameCompleted(gameMode, gameState.score, correctCount);
     }
     if (gameState.status === 'not-started') {
       scorePersistedRef.current = false;
@@ -46,18 +63,29 @@ export default function MainPage() {
 
   const handleStartGame = useCallback(() => {
     startGame('play');
+    trackGameStarted('play');
     start();
   }, [startGame, start]);
 
   const handleStartImprove = useCallback(() => {
     startGame('improve', session?.playerName);
+    trackGameStarted('improve');
     start();
   }, [startGame, start, session]);
 
   const handleSubmit = useCallback(
     (answer: number) => {
       const elapsed = stop();
+      const prevRound = currentRound;
       submitAnswer(answer, elapsed);
+      if (prevRound) {
+        const correct = answer === (prevRound.formula.hiddenPosition === 'C'
+          ? prevRound.formula.product
+          : prevRound.formula.hiddenPosition === 'A'
+            ? prevRound.formula.factorA
+            : prevRound.formula.factorB);
+        trackAnswerSubmitted(correct, elapsed);
+      }
 
       // Show feedback for FEEDBACK_DURATION_MS, then advance
       feedbackTimeoutRef.current = setTimeout(() => {
@@ -67,7 +95,7 @@ export default function MainPage() {
         feedbackTimeoutRef.current = null;
       }, FEEDBACK_DURATION_MS);
     },
-    [stop, submitAnswer, nextRound, reset, start],
+    [stop, submitAnswer, nextRound, reset, start, currentRound],
   );
 
   const handlePlayAgain = useCallback(() => {

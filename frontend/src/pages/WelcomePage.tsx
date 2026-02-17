@@ -7,6 +7,7 @@ import type { Player } from '../types/player';
 import NewPlayerForm from '../components/WelcomeScreen/NewPlayerForm';
 import PlayerList from '../components/WelcomeScreen/PlayerList';
 import LanguageSwitcher from '../components/LanguageSwitcher/LanguageSwitcher';
+import { setPlayerTypeTag } from '../services/clarityService';
 import styles from './WelcomePage.module.css';
 
 /**
@@ -61,11 +62,13 @@ export default function WelcomePage() {
         t('welcome.evictionMessage', { names: evictedNames.join(', ') }),
       );
     }
+    setPlayerTypeTag('new');
     startSession(data);
     navigate('/play');
   };
 
   const handleSelectPlayer = (player: Player) => {
+    setPlayerTypeTag('returning');
     startSession({ name: player.name, avatarId: player.avatarId });
     navigate('/play');
   };
