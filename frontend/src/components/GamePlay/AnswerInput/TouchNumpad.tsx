@@ -1,9 +1,12 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from '../../../i18n';
 import styles from './TouchNumpad.module.css';
 
 interface TouchNumpadProps {
-  onSubmit: (answer: number) => void;
+  typedDigits: string;
+  onDigit: (digit: string) => void;
+  onBackspace: () => void;
+  onSubmit: () => void;
   acceptingInput: boolean;
 }
 
@@ -13,62 +16,24 @@ const DIGIT_ROWS = [
   ['7', '8', '9'],
 ];
 
-const MAX_DIGITS = 3;
-
 /**
  * Custom in-page numpad for touch devices.
  *
- * Renders a 4×3 calculator-style grid (1-2-3 / 4-5-6 / 7-8-9 / ⌫-0-Go)
- * plus a read-only answer display. Digits are composed by tapping buttons,
- * "Go" submits, "⌫" deletes the last digit.
+ * Renders a 4×3 calculator-style grid (1-2-3 / 4-5-6 / 7-8-9 / ⌫-0-Go).
+ * All digit state is managed externally via the useAnswerInput hook;
+ * this component simply routes button taps to parent callbacks.
  *
  * Physical keyboard input (0–9, Enter, Backspace) is captured via a
  * document-level keydown listener and mirrors button behavior identically.
- *
- * The answer display is a non-focusable <div> — impossible to trigger the
- * OS keyboard.
  */
-export default function TouchNumpad({ onSubmit, acceptingInput }: TouchNumpadProps) {
-  const [answer, setAnswer] = useState('');
-  const submittedRef = useRef(false);
+export default function TouchNumpad({
+  typedDigits,
+  onDigit,
+  onBackspace,
+  onSubmit,
+  acceptingInput,
+}: TouchNumpadProps) {
   const { t } = useTranslation();
-
-  // Reset state when a new round begins (acceptingInput transitions to true)
-  useEffect(() => {
-    if (acceptingInput) {
-      setAnswer('');
-      submittedRef.current = false;
-    }
-  }, [acceptingInput]);
-
-  const appendDigit = useCallback(
-    (digit: string) => {
-      if (!acceptingInput) return;
-      setAnswer((prev) => {
-        if (prev.length >= MAX_DIGITS) return prev;
-        if (prev === '' && digit === '0') return prev; // no leading zeros
-        return prev + digit;
-      });
-    },
-    [acceptingInput]
-  );
-
-  const deleteLastDigit = useCallback(() => {
-    if (!acceptingInput) return;
-    setAnswer((prev) => prev.slice(0, -1));
-  }, [acceptingInput]);
-
-  const submitAnswer = useCallback(() => {
-    if (!acceptingInput) return;
-    if (submittedRef.current) return;
-
-    setAnswer((prev) => {
-      if (prev.length === 0) return prev;
-      submittedRef.current = true;
-      onSubmit(parseInt(prev, 10));
-      return '';
-    });
-  }, [acceptingInput, onSubmit]);
 
   // Document-level keydown listener for physical keyboard support
   useEffect(() => {
@@ -76,34 +41,24 @@ export default function TouchNumpad({ onSubmit, acceptingInput }: TouchNumpadPro
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key >= '0' && e.key <= '9') {
-        appendDigit(e.key);
+        onDigit(e.key);
       } else if (e.key === 'Backspace') {
         e.preventDefault();
-        deleteLastDigit();
+        onBackspace();
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        submitAnswer();
+        onSubmit();
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [acceptingInput, appendDigit, deleteLastDigit, submitAnswer]);
+  }, [acceptingInput, onDigit, onBackspace, onSubmit]);
 
-  const isEmpty = answer === '';
+  const isEmpty = typedDigits === '';
 
   return (
     <div className={styles.container}>
-      {/* Answer display — non-focusable div, styled like existing input */}
-      <div
-        className={styles.display}
-        role="status"
-        aria-live="polite"
-        aria-label={t('a11y.currentAnswer')}
-      >
-        {isEmpty ? <span className={styles.placeholder}>{t('game.answerPlaceholder')}</span> : answer}
-      </div>
-
       {/* Numpad grid */}
       <div className={styles.grid}>
         {/* Rows 1-3: digits 1-9 */}
@@ -115,20 +70,20 @@ export default function TouchNumpad({ onSubmit, acceptingInput }: TouchNumpadPro
               className={styles.button}
               aria-label={t('a11y.digit', { digit })}
               disabled={!acceptingInput}
-              onClick={() => appendDigit(digit)}
+              onClick={() => onDigit(digit)}
             >
               {digit}
             </button>
           ))
         )}
 
-        {/* Row 4: ⌫, 0, Go */}
+        {/* Row 4: ⌫, 0, ✔️ */}
         <button
           type="button"
           className={`${styles.button} ${styles.backspace}`}
           aria-label={t('a11y.deleteDigit')}
           disabled={!acceptingInput}
-          onClick={deleteLastDigit}
+          onClick={onBackspace}
         >
           ⌫
         </button>
@@ -137,7 +92,7 @@ export default function TouchNumpad({ onSubmit, acceptingInput }: TouchNumpadPro
           className={styles.button}
           aria-label={t('a11y.digit', { digit: '0' })}
           disabled={!acceptingInput}
-          onClick={() => appendDigit('0')}
+          onClick={() => onDigit('0')}
         >
           0
         </button>
@@ -146,9 +101,9 @@ export default function TouchNumpad({ onSubmit, acceptingInput }: TouchNumpadPro
           className={`${styles.button} ${styles.go}`}
           aria-label={t('a11y.submitNumpad')}
           disabled={!acceptingInput || isEmpty}
-          onClick={submitAnswer}
+          onClick={onSubmit}
         >
-          {t('game.go')}
+          Go
         </button>
       </div>
     </div>

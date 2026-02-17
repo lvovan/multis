@@ -105,4 +105,107 @@ describe('FormulaDisplay', () => {
       );
     });
   });
+
+  describe('typedDigits prop', () => {
+    it('shows "?" when typedDigits is empty string', () => {
+      render(<FormulaDisplay formula={baseFormula} typedDigits="" />);
+
+      expect(screen.getByText('?')).toBeInTheDocument();
+    });
+
+    it('shows "?" when typedDigits is undefined', () => {
+      render(<FormulaDisplay formula={baseFormula} />);
+
+      expect(screen.getByText('?')).toBeInTheDocument();
+    });
+
+    it('renders typed digits in the hidden slot when non-empty', () => {
+      render(<FormulaDisplay formula={baseFormula} typedDigits="42" />);
+
+      expect(screen.getByText('42')).toBeInTheDocument();
+      expect(screen.queryByText('?')).not.toBeInTheDocument();
+    });
+
+    it('renders single typed digit', () => {
+      render(<FormulaDisplay formula={baseFormula} typedDigits="8" />);
+
+      expect(screen.getByText('8')).toBeInTheDocument();
+      expect(screen.queryByText('?')).not.toBeInTheDocument();
+    });
+
+    it('playerAnswer takes precedence over typedDigits during feedback', () => {
+      render(
+        <FormulaDisplay formula={baseFormula} playerAnswer={38} typedDigits="4" />,
+      );
+
+      expect(screen.getByText('38')).toBeInTheDocument();
+      expect(screen.queryByText('4')).not.toBeInTheDocument();
+      expect(screen.queryByText('?')).not.toBeInTheDocument();
+    });
+
+    it('works with hiddenPosition A', () => {
+      const formula: Formula = { ...baseFormula, hiddenPosition: 'A' };
+      render(<FormulaDisplay formula={formula} typedDigits="5" />);
+
+      expect(screen.getByText('5')).toBeInTheDocument();
+      expect(screen.queryByText('?')).not.toBeInTheDocument();
+    });
+
+    it('works with hiddenPosition B', () => {
+      const formula: Formula = { ...baseFormula, hiddenPosition: 'B' };
+      render(<FormulaDisplay formula={formula} typedDigits="9" />);
+
+      expect(screen.getByText('9')).toBeInTheDocument();
+      expect(screen.queryByText('?')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('isInputPhase prop', () => {
+    it('applies pulsing class to hidden span when isInputPhase is true', () => {
+      render(
+        <FormulaDisplay formula={baseFormula} isInputPhase={true} />,
+      );
+
+      const hiddenSpan = screen.getByText('?');
+      expect(hiddenSpan.className).toMatch(/pulsing/);
+    });
+
+    it('does not apply pulsing class when isInputPhase is false', () => {
+      render(
+        <FormulaDisplay formula={baseFormula} isInputPhase={false} />,
+      );
+
+      const hiddenSpan = screen.getByText('?');
+      expect(hiddenSpan.className).not.toMatch(/pulsing/);
+    });
+
+    it('does not apply pulsing class when isInputPhase is undefined', () => {
+      render(<FormulaDisplay formula={baseFormula} />);
+
+      const hiddenSpan = screen.getByText('?');
+      expect(hiddenSpan.className).not.toMatch(/pulsing/);
+    });
+
+    it('applies pulsing class when typedDigits are being entered', () => {
+      render(
+        <FormulaDisplay formula={baseFormula} typedDigits="4" isInputPhase={true} />,
+      );
+
+      const digitSpan = screen.getByText('4');
+      expect(digitSpan.className).toMatch(/pulsing/);
+    });
+
+    it('removes pulsing class during feedback phase with playerAnswer', () => {
+      render(
+        <FormulaDisplay
+          formula={baseFormula}
+          playerAnswer={21}
+          isInputPhase={false}
+        />,
+      );
+
+      const answerSpan = screen.getByText('21');
+      expect(answerSpan.className).not.toMatch(/pulsing/);
+    });
+  });
 });
