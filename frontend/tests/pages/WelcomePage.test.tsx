@@ -51,7 +51,7 @@ describe('WelcomePage (new player flow)', () => {
 
   it('displays copyright text at the bottom', () => {
     renderWelcomePage();
-    expect(screen.getByText('© 2025, Luc Vo Van - Built with AI')).toBeInTheDocument();
+    expect(screen.getByText('© 2026, Luc Vo Van - Built with AI')).toBeInTheDocument();
   });
 
   it('navigates to /play after creating a new player', async () => {
@@ -143,7 +143,7 @@ describe('WelcomePage (storage unavailable)', () => {
   it('displays copyright text when storage is unavailable', () => {
     vi.spyOn(playerStorage, 'isStorageAvailable').mockReturnValue(false);
     renderWelcomePage();
-    expect(screen.getByText('© 2025, Luc Vo Van - Built with AI')).toBeInTheDocument();
+    expect(screen.getByText('© 2026, Luc Vo Van - Built with AI')).toBeInTheDocument();
     vi.restoreAllMocks();
   });
 });

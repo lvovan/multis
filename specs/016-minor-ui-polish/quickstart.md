@@ -27,7 +27,7 @@ Open http://localhost:5173 in a browser.
 
 ### Change 1: Copyright footer on Welcome Screen
 1. Open the app (http://localhost:5173/)
-2. Verify "© 2025, Luc Vo Van - Built with AI" appears at the bottom of the screen
+2. Verify "© 2026, Luc Vo Van - Built with AI" appears at the bottom of the screen
 3. Resize to 320px wide — confirm no overlap with interactive elements
 4. Confirm text is small and muted (not visually dominant)
 

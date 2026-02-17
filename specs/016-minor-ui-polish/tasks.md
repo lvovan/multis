@@ -33,14 +33,14 @@
 
 ## Phase 3: User Story 1 — Copyright Notice on Welcome Screen (Priority: P1) 🎯 MVP
 
-**Goal**: Display "© 2025, Luc Vo Van - Built with AI" at the bottom of the welcome screen.
+**Goal**: Display "© 2026, Luc Vo Van - Built with AI" at the bottom of the welcome screen.
 
 **Independent Test**: Open the app at `/` and verify copyright text is visible at the bottom on any viewport.
 
 ### Implementation for User Story 1
 
 - [x] T002 [P] [US1] Add `min-height: 100dvh` to `.welcomePage` and add `.copyright` class (small, muted, `margin-top: auto`) in `frontend/src/pages/WelcomePage.module.css`
-- [x] T003 [P] [US1] Add `<p className={styles.copyright}>© 2025, Luc Vo Van - Built with AI</p>` as last child of the `.welcomePage` div in `frontend/src/pages/WelcomePage.tsx` (both the storage-unavailable and normal render paths)
+- [x] T003 [P] [US1] Add `<p className={styles.copyright}>© 2026, Luc Vo Van - Built with AI</p>` as last child of the `.welcomePage` div in `frontend/src/pages/WelcomePage.tsx` (both the storage-unavailable and normal render paths)
 - [x] T004 [US1] Update WelcomePage tests to verify copyright text is rendered in `frontend/tests/pages/WelcomePage.test.tsx`
 
 **Checkpoint**: Welcome screen shows copyright footer on all viewports.

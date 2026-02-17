@@ -3,7 +3,7 @@
 **Feature Branch**: `016-minor-ui-polish`  
 **Created**: 2026-02-16  
 **Status**: Draft  
-**Input**: User description: "Minor UI changes: (1) On the start (login) screen, add a small copyright text at the bottom: '© 2025, Luc Vo Van - Built with AI' (2) Reduce the size and height of the element that contains the 'game.readyToPlay' text to reduce the risk of the user having to scroll on smaller screen (3) Only show the top 3 scores on the main menu (4) Show the sparkline on the result screen before the detailed analysis of the game."
+**Input**: User description: "Minor UI changes: (1) On the start (login) screen, add a small copyright text at the bottom: '© 2026, Luc Vo Van - Built with AI' (2) Reduce the size and height of the element that contains the 'game.readyToPlay' text to reduce the risk of the user having to scroll on smaller screen (3) Only show the top 3 scores on the main menu (4) Show the sparkline on the result screen before the detailed analysis of the game."
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -22,7 +22,7 @@
 
 ### User Story 1 - Copyright Notice on Welcome Screen (Priority: P1)
 
-A user opens the app and lands on the welcome (login) screen. At the very bottom of the screen, they see a small copyright notice reading "© 2025, Luc Vo Van - Built with AI". The notice is always visible regardless of screen content and does not interfere with the login flow.
+A user opens the app and lands on the welcome (login) screen. At the very bottom of the screen, they see a small copyright notice reading "© 2026, Luc Vo Van - Built with AI". The notice is always visible regardless of screen content and does not interfere with the login flow.
 
 **Why this priority**: Copyright attribution is a legal and branding requirement. It is the simplest change and delivers immediate compliance value.
 
@@ -30,7 +30,7 @@ A user opens the app and lands on the welcome (login) screen. At the very bottom
 
 **Acceptance Scenarios**:
 
-1. **Given** the user is on the welcome screen, **When** the page loads, **Then** the text "© 2025, Luc Vo Van - Built with AI" is displayed at the bottom of the screen.
+1. **Given** the user is on the welcome screen, **When** the page loads, **Then** the text "© 2026, Luc Vo Van - Built with AI" is displayed at the bottom of the screen.
 2. **Given** the user is on the welcome screen on a small mobile device, **When** the page loads, **Then** the copyright text is visible without overlapping or obscuring any interactive elements (player list, new player form, buttons).
 3. **Given** the user is on the welcome screen, **When** they look at the copyright text, **Then** it appears in a muted, small style that does not draw attention away from the primary content.
 
@@ -95,7 +95,7 @@ After completing a game, the user sees the score progression sparkline (graph of
 
 ### Functional Requirements
 
-- **FR-001**: The welcome screen MUST display the copyright text "© 2025, Luc Vo Van - Built with AI" at the bottom of the page.
+- **FR-001**: The welcome screen MUST display the copyright text "© 2026, Luc Vo Van - Built with AI" at the bottom of the page.
 - **FR-002**: The copyright text MUST be styled as small, muted text so it does not compete with primary content for attention.
 - **FR-003**: The copyright text MUST remain visible and not overlap with interactive elements on screens as small as 320px wide.
 - **FR-004**: The "Ready to play?" heading and the instruction text on the main menu MUST be rendered in a more compact size to reduce vertical space consumption.

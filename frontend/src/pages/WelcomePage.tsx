@@ -47,7 +47,7 @@ export default function WelcomePage() {
         <div className={styles.content}>
           <NewPlayerForm onSubmit={handleTemporaryPlay} playerExists={() => false} />
         </div>
-        <p className={styles.copyright}>© 2025, Luc Vo Van - Built with AI</p>
+        <p className={styles.copyright}>© 2026, Luc Vo Van - Built with AI</p>
       </div>
     );
   }
@@ -131,7 +131,7 @@ export default function WelcomePage() {
           />
         )}
       </div>
-      <p className={styles.copyright}>© 2025, Luc Vo Van - Built with AI</p>
+      <p className={styles.copyright}>© 2026, Luc Vo Van - Built with AI</p>
     </div>
   );
 }
