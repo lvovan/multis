@@ -92,17 +92,13 @@ describe('Gameplay Flow Integration', () => {
         expect(screen.getByText(new RegExp(`Round ${i + 1} of 10`))).toBeInTheDocument();
       }
 
-      const input = screen.getByRole('textbox');
-
       if (i < 8) {
         // Correct answer
-        await user.type(input, String(correctAnswers[i]));
+        await user.keyboard(`${correctAnswers[i]}{Enter}`);
       } else {
         // Wrong answer for rounds 9-10
-        await user.type(input, '999');
+        await user.keyboard('999{Enter}');
       }
-
-      await user.click(screen.getByRole('button', { name: /submit/i }));
 
       // Verify feedback appears
       if (i < 8) {
@@ -119,7 +115,7 @@ describe('Gameplay Flow Integration', () => {
       // Wait for next state
       if (i < 9) {
         await waitFor(() => {
-          expect(screen.getByRole('textbox')).toBeInTheDocument();
+          expect(screen.getByText('?')).toBeInTheDocument();
         });
       }
     }
@@ -131,9 +127,7 @@ describe('Gameplay Flow Integration', () => {
     });
 
     // Answer replay round 1 (formula index 8: 10×12=120, hidden=C) correctly
-    let input = screen.getByRole('textbox');
-    await user.type(input, String(correctAnswers[8]));
-    await user.click(screen.getByRole('button', { name: /submit/i }));
+    await user.keyboard(`${correctAnswers[8]}{Enter}`);
 
     act(() => {
       vi.advanceTimersByTime(FEEDBACK_DURATION_MS + 50);
@@ -141,13 +135,11 @@ describe('Gameplay Flow Integration', () => {
 
     // Still in replay for round 2
     await waitFor(() => {
-      expect(screen.getByRole('textbox')).toBeInTheDocument();
+      expect(screen.getByText('?')).toBeInTheDocument();
     });
 
     // Answer replay round 2 (formula index 9: 9×11=99, hidden=A, answer=9) correctly
-    input = screen.getByRole('textbox');
-    await user.type(input, String(correctAnswers[9]));
-    await user.click(screen.getByRole('button', { name: /submit/i }));
+    await user.keyboard(`${correctAnswers[9]}{Enter}`);
 
     act(() => {
       vi.advanceTimersByTime(FEEDBACK_DURATION_MS + 50);
@@ -194,9 +186,7 @@ describe('Gameplay Flow Integration', () => {
     // Play all 10 rounds correctly
     const correctAnswers = testFormulas.map((f) => getCorrectAnswer(f));
     for (let i = 0; i < 10; i++) {
-      const input = screen.getByRole('textbox');
-      await user.type(input, String(correctAnswers[i]));
-      await user.click(screen.getByRole('button', { name: /submit/i }));
+      await user.keyboard(`${correctAnswers[i]}{Enter}`);
 
       act(() => {
         vi.advanceTimersByTime(FEEDBACK_DURATION_MS + 50);
@@ -204,7 +194,7 @@ describe('Gameplay Flow Integration', () => {
 
       if (i < 9) {
         await waitFor(() => {
-          expect(screen.getByRole('textbox')).toBeInTheDocument();
+          expect(screen.getByText('?')).toBeInTheDocument();
         });
       }
     }

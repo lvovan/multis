@@ -9,121 +9,91 @@ describe('TouchNumpad', () => {
     vi.restoreAllMocks();
   });
 
-  // --- Digit entry ---
+  const baseProps = {
+    typedDigits: '',
+    onDigit: vi.fn(),
+    onBackspace: vi.fn(),
+    onSubmit: vi.fn(),
+    acceptingInput: true,
+  };
 
-  it('appends a digit to the answer display when a digit button is tapped', async () => {
+  // --- Digit button taps ---
+
+  it('calls onDigit when a digit button is tapped', async () => {
+    const onDigit = vi.fn();
     const user = userEvent.setup();
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
+    render(<TouchNumpad {...baseProps} onDigit={onDigit} />);
 
     await user.click(screen.getByRole('button', { name: 'digit 7' }));
-    expect(screen.getByRole('status')).toHaveTextContent('7');
+    expect(onDigit).toHaveBeenCalledWith('7');
   });
 
-  it('composes multi-digit answers', async () => {
+  it('calls onDigit for each digit button', async () => {
+    const onDigit = vi.fn();
     const user = userEvent.setup();
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
+    render(<TouchNumpad {...baseProps} onDigit={onDigit} />);
 
-    await user.click(screen.getByRole('button', { name: 'digit 7' }));
-    await user.click(screen.getByRole('button', { name: 'digit 2' }));
-    expect(screen.getByRole('status')).toHaveTextContent('72');
-  });
-
-  it('composes three-digit answers', async () => {
-    const user = userEvent.setup();
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
-
-    await user.click(screen.getByRole('button', { name: 'digit 1' }));
     await user.click(screen.getByRole('button', { name: 'digit 4' }));
-    await user.click(screen.getByRole('button', { name: 'digit 4' }));
-    expect(screen.getByRole('status')).toHaveTextContent('144');
-  });
-
-  // --- Max 3 digits ---
-
-  it('enforces max 3 digits — ignores 4th digit', async () => {
-    const user = userEvent.setup();
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
-
-    await user.click(screen.getByRole('button', { name: 'digit 1' }));
     await user.click(screen.getByRole('button', { name: 'digit 2' }));
-    await user.click(screen.getByRole('button', { name: 'digit 3' }));
-    await user.click(screen.getByRole('button', { name: 'digit 9' })); // 4th digit
-
-    expect(screen.getByRole('status')).toHaveTextContent('123');
+    expect(onDigit).toHaveBeenCalledTimes(2);
+    expect(onDigit).toHaveBeenNthCalledWith(1, '4');
+    expect(onDigit).toHaveBeenNthCalledWith(2, '2');
   });
 
-  // --- Leading zero prevention ---
-
-  it('prevents leading zero — tapping 0 on empty field has no effect', async () => {
+  it('calls onDigit for zero button', async () => {
+    const onDigit = vi.fn();
     const user = userEvent.setup();
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
+    render(<TouchNumpad {...baseProps} onDigit={onDigit} />);
 
     await user.click(screen.getByRole('button', { name: 'digit 0' }));
-    expect(screen.getByRole('status')).toHaveTextContent('?');
+    expect(onDigit).toHaveBeenCalledWith('0');
   });
 
-  it('allows 0 after a non-zero digit', async () => {
-    const user = userEvent.setup();
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
+  // --- Submit button ---
 
-    await user.click(screen.getByRole('button', { name: 'digit 1' }));
-    await user.click(screen.getByRole('button', { name: 'digit 0' }));
-    expect(screen.getByRole('status')).toHaveTextContent('10');
-  });
-
-  // --- Go button submission ---
-
-  it('submits parsed number via onSubmit when Go is tapped', async () => {
-    const user = userEvent.setup();
+  it('calls onSubmit when checkmark button is tapped', async () => {
     const onSubmit = vi.fn();
-    render(<TouchNumpad onSubmit={onSubmit} acceptingInput={true} />);
-
-    await user.click(screen.getByRole('button', { name: 'digit 4' }));
-    await user.click(screen.getByRole('button', { name: 'digit 2' }));
-    await user.click(screen.getByRole('button', { name: 'submit answer' }));
-
-    expect(onSubmit).toHaveBeenCalledWith(42);
-  });
-
-  it('does nothing when Go is tapped with empty answer', async () => {
     const user = userEvent.setup();
-    const onSubmit = vi.fn();
-    render(<TouchNumpad onSubmit={onSubmit} acceptingInput={true} />);
+    render(<TouchNumpad {...baseProps} typedDigits="42" onSubmit={onSubmit} />);
 
     await user.click(screen.getByRole('button', { name: 'submit answer' }));
-    expect(onSubmit).not.toHaveBeenCalled();
-  });
-
-  it('clears answer display after successful Go submission', async () => {
-    const user = userEvent.setup();
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
-
-    await user.click(screen.getByRole('button', { name: 'digit 5' }));
-    await user.click(screen.getByRole('button', { name: 'submit answer' }));
-
-    expect(screen.getByRole('status')).toHaveTextContent('?');
-  });
-
-  // --- Double-tap guard ---
-
-  it('prevents double-tap on Go — onSubmit called only once', async () => {
-    const user = userEvent.setup();
-    const onSubmit = vi.fn();
-    render(<TouchNumpad onSubmit={onSubmit} acceptingInput={true} />);
-
-    await user.click(screen.getByRole('button', { name: 'digit 9' }));
-
-    const goButton = screen.getByRole('button', { name: 'submit answer' });
-    await user.click(goButton);
-    await user.click(goButton);
-
     expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it('submit button is disabled when typedDigits is empty', () => {
+    render(<TouchNumpad {...baseProps} typedDigits="" />);
+
+    expect(screen.getByRole('button', { name: 'submit answer' })).toBeDisabled();
+  });
+
+  it('submit button is enabled when typedDigits has content', () => {
+    render(<TouchNumpad {...baseProps} typedDigits="5" />);
+
+    expect(screen.getByRole('button', { name: 'submit answer' })).toBeEnabled();
+  });
+
+  it('renders "Go" on the submit button', () => {
+    render(<TouchNumpad {...baseProps} typedDigits="5" />);
+
+    const submitButton = screen.getByRole('button', { name: 'submit answer' });
+    expect(submitButton).toHaveTextContent('Go');
+  });
+
+  // --- Backspace button ---
+
+  it('calls onBackspace when backspace button is tapped', async () => {
+    const onBackspace = vi.fn();
+    const user = userEvent.setup();
+    render(<TouchNumpad {...baseProps} typedDigits="7" onBackspace={onBackspace} />);
+
+    await user.click(screen.getByRole('button', { name: 'delete last digit' }));
+    expect(onBackspace).toHaveBeenCalledTimes(1);
   });
 
   // --- Disabled state ---
 
   it('disables all buttons when acceptingInput is false', () => {
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={false} />);
+    render(<TouchNumpad {...baseProps} acceptingInput={false} />);
 
     const buttons = screen.getAllByRole('button');
     buttons.forEach((button) => {
@@ -131,223 +101,94 @@ describe('TouchNumpad', () => {
     });
   });
 
-  it('ignores digit taps during feedback phase', async () => {
-    const user = userEvent.setup();
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={false} />);
-
-    await user.click(screen.getByRole('button', { name: 'digit 5' }));
-    expect(screen.getByRole('status')).toHaveTextContent('?');
-  });
-
-  // --- State reset on new round ---
-
-  it('clears answer when acceptingInput transitions false → true', () => {
-    const { rerender } = render(
-      <TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />
-    );
-
-    // Can't easily pre-populate answer in this test, but we verify the effect:
-    // transition to false then back to true should result in empty answer
-    rerender(<TouchNumpad onSubmit={vi.fn()} acceptingInput={false} />);
-    rerender(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
-
-    expect(screen.getByRole('status')).toHaveTextContent('?');
-  });
-
-  // --- Backspace ---
-
-  it('removes the last digit when backspace is tapped', async () => {
-    const user = userEvent.setup();
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
-
-    await user.click(screen.getByRole('button', { name: 'digit 7' }));
-    await user.click(screen.getByRole('button', { name: 'digit 2' }));
-    await user.click(screen.getByRole('button', { name: 'delete last digit' }));
-
-    expect(screen.getByRole('status')).toHaveTextContent('7');
-  });
-
-  it('clears to empty when backspace removes last remaining digit', async () => {
-    const user = userEvent.setup();
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
-
-    await user.click(screen.getByRole('button', { name: 'digit 3' }));
-    await user.click(screen.getByRole('button', { name: 'delete last digit' }));
-
-    expect(screen.getByRole('status')).toHaveTextContent('?');
-  });
-
-  it('backspace on empty answer has no effect', async () => {
-    const user = userEvent.setup();
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
-
-    await user.click(screen.getByRole('button', { name: 'delete last digit' }));
-    expect(screen.getByRole('status')).toHaveTextContent('?');
-  });
-
   // --- Physical keyboard input ---
 
-  it('appends digit via physical keyboard keydown', async () => {
+  it('calls onDigit via physical keyboard keydown', async () => {
+    const onDigit = vi.fn();
     const user = userEvent.setup();
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
+    render(<TouchNumpad {...baseProps} onDigit={onDigit} />);
 
     await user.keyboard('8');
-    expect(screen.getByRole('status')).toHaveTextContent('8');
+    expect(onDigit).toHaveBeenCalledWith('8');
   });
 
-  it('submits via Enter key', async () => {
-    const user = userEvent.setup();
+  it('calls onSubmit via Enter key', async () => {
     const onSubmit = vi.fn();
-    render(<TouchNumpad onSubmit={onSubmit} acceptingInput={true} />);
+    const user = userEvent.setup();
+    render(<TouchNumpad {...baseProps} onSubmit={onSubmit} />);
 
-    await user.keyboard('42{Enter}');
-    expect(onSubmit).toHaveBeenCalledWith(42);
+    await user.keyboard('{Enter}');
+    expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 
-  it('deletes last digit via Backspace key', async () => {
+  it('calls onBackspace via Backspace key', async () => {
+    const onBackspace = vi.fn();
     const user = userEvent.setup();
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
+    render(<TouchNumpad {...baseProps} onBackspace={onBackspace} />);
 
-    await user.keyboard('72{Backspace}');
-    expect(screen.getByRole('status')).toHaveTextContent('7');
+    await user.keyboard('{Backspace}');
+    expect(onBackspace).toHaveBeenCalledTimes(1);
   });
 
   it('ignores keyboard input when acceptingInput is false', async () => {
-    const user = userEvent.setup();
+    const onDigit = vi.fn();
     const onSubmit = vi.fn();
-    render(<TouchNumpad onSubmit={onSubmit} acceptingInput={false} />);
+    const onBackspace = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <TouchNumpad
+        {...baseProps}
+        onDigit={onDigit}
+        onSubmit={onSubmit}
+        onBackspace={onBackspace}
+        acceptingInput={false}
+      />,
+    );
 
-    await user.keyboard('5{Enter}');
+    await user.keyboard('5{Backspace}{Enter}');
+    expect(onDigit).not.toHaveBeenCalled();
+    expect(onBackspace).not.toHaveBeenCalled();
     expect(onSubmit).not.toHaveBeenCalled();
-    expect(screen.getByRole('status')).toHaveTextContent('?');
-  });
-
-  it('enforces max 3 digits via keyboard', async () => {
-    const user = userEvent.setup();
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
-
-    await user.keyboard('1234');
-    expect(screen.getByRole('status')).toHaveTextContent('123');
-  });
-
-  it('prevents leading zero via keyboard', async () => {
-    const user = userEvent.setup();
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
-
-    await user.keyboard('0');
-    expect(screen.getByRole('status')).toHaveTextContent('?');
   });
 
   // --- ARIA / Accessibility ---
 
   it('has ARIA labels on all digit buttons', () => {
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
+    render(<TouchNumpad {...baseProps} />);
 
     for (let i = 0; i <= 9; i++) {
       expect(screen.getByRole('button', { name: `digit ${i}` })).toBeInTheDocument();
     }
   });
 
-  it('has ARIA label on Go button', () => {
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
+  it('has ARIA label on submit button', () => {
+    render(<TouchNumpad {...baseProps} />);
     expect(screen.getByRole('button', { name: 'submit answer' })).toBeInTheDocument();
   });
 
   it('has ARIA label on backspace button', () => {
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
+    render(<TouchNumpad {...baseProps} />);
     expect(screen.getByRole('button', { name: 'delete last digit' })).toBeInTheDocument();
   });
 
-  it('answer display has role="status" and aria-live="polite"', () => {
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
-
-    const display = screen.getByRole('status');
-    expect(display).toHaveAttribute('aria-live', 'polite');
-    expect(display).toHaveAttribute('aria-label', 'Current answer');
-  });
-
-  it('shows "?" placeholder when answer is empty', () => {
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
-    expect(screen.getByRole('status')).toHaveTextContent('?');
-  });
-
   it('passes axe accessibility checks', async () => {
-    const { container } = render(
-      <TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />
-    );
+    const { container } = render(<TouchNumpad {...baseProps} />);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
   // --- Button grid layout ---
 
-  it('renders all 12 buttons (10 digits + backspace + Go)', () => {
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
+  it('renders all 12 buttons (10 digits + backspace + checkmark)', () => {
+    render(<TouchNumpad {...baseProps} />);
     const buttons = screen.getAllByRole('button');
     expect(buttons).toHaveLength(12);
   });
 
-  // --- Backspace edge cases (US4 verification) ---
+  // --- No answer display div ---
 
-  it('sequential multi-delete: compose "123", delete three times to empty', async () => {
-    const user = userEvent.setup();
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
-
-    await user.click(screen.getByRole('button', { name: 'digit 1' }));
-    await user.click(screen.getByRole('button', { name: 'digit 2' }));
-    await user.click(screen.getByRole('button', { name: 'digit 3' }));
-    expect(screen.getByRole('status')).toHaveTextContent('123');
-
-    await user.click(screen.getByRole('button', { name: 'delete last digit' }));
-    expect(screen.getByRole('status')).toHaveTextContent('12');
-
-    await user.click(screen.getByRole('button', { name: 'delete last digit' }));
-    expect(screen.getByRole('status')).toHaveTextContent('1');
-
-    await user.click(screen.getByRole('button', { name: 'delete last digit' }));
-    expect(screen.getByRole('status')).toHaveTextContent('?');
-  });
-
-  it('delete-then-reenter: compose "12", delete once, enter "3" → "13"', async () => {
-    const user = userEvent.setup();
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
-
-    await user.click(screen.getByRole('button', { name: 'digit 1' }));
-    await user.click(screen.getByRole('button', { name: 'digit 2' }));
-    await user.click(screen.getByRole('button', { name: 'delete last digit' }));
-    await user.click(screen.getByRole('button', { name: 'digit 3' }));
-
-    expect(screen.getByRole('status')).toHaveTextContent('13');
-  });
-
-  it('physical Backspace key mirrors ⌫ button behavior identically', async () => {
-    const user = userEvent.setup();
-    render(<TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />);
-
-    // Enter via buttons, delete via keyboard
-    await user.click(screen.getByRole('button', { name: 'digit 5' }));
-    await user.click(screen.getByRole('button', { name: 'digit 6' }));
-    await user.keyboard('{Backspace}');
-
-    expect(screen.getByRole('status')).toHaveTextContent('5');
-  });
-
-  it('backspace button ignored during feedback phase', async () => {
-    const user = userEvent.setup();
-    const { rerender } = render(
-      <TouchNumpad onSubmit={vi.fn()} acceptingInput={true} />
-    );
-
-    await user.click(screen.getByRole('button', { name: 'digit 8' }));
-    expect(screen.getByRole('status')).toHaveTextContent('8');
-
-    // Transition to feedback phase
-    rerender(<TouchNumpad onSubmit={vi.fn()} acceptingInput={false} />);
-
-    // Backspace should be ignored (button is disabled)
-    await user.click(screen.getByRole('button', { name: 'delete last digit' }));
-    // The answer was cleared by the acceptingInput=false→true cycle won't happen,
-    // but the important thing is the button is disabled
-    expect(screen.getByRole('button', { name: 'delete last digit' })).toBeDisabled();
+  it('does not render an answer display element', () => {
+    render(<TouchNumpad {...baseProps} />);
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 });

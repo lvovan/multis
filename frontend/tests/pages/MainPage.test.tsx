@@ -96,8 +96,8 @@ describe('MainPage', () => {
     expect(screen.getByText(/round 1 of 10/i)).toBeInTheDocument();
     // Should show formula with hidden value as "?"
     expect(screen.getByText('?')).toBeInTheDocument();
-    // Should have a submit button
-    expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument();
+    // Should show formula with math role
+    expect(screen.getByRole('math')).toBeInTheDocument();
   });
 
   it('submitting answer shows feedback', async () => {
@@ -107,9 +107,7 @@ describe('MainPage', () => {
     await user.click(screen.getByRole('button', { name: /^play/i }));
 
     // Round 1: 1 × 1 = ?, answer is 1
-    const input = screen.getByRole('textbox');
-    await user.type(input, '1');
-    await user.click(screen.getByRole('button', { name: /submit/i }));
+    await user.keyboard('1{Enter}');
 
     // Should show correct feedback
     expect(screen.getByText(/correct/i)).toBeInTheDocument();
@@ -124,9 +122,7 @@ describe('MainPage', () => {
     // Play all 10 rounds with correct answers
     const answers = [1, 4, 9, 16, 25, 36, 49, 64, 81, 100];
     for (let i = 0; i < 10; i++) {
-      const input = screen.getByRole('textbox');
-      await user.type(input, String(answers[i]));
-      await user.click(screen.getByRole('button', { name: /submit/i }));
+      await user.keyboard(`${answers[i]}{Enter}`);
 
       // Wait for feedback duration
       act(() => {
@@ -136,7 +132,7 @@ describe('MainPage', () => {
       // If not last round, wait for next round to appear
       if (i < 9) {
         await waitFor(() => {
-          expect(screen.getByRole('textbox')).toBeInTheDocument();
+          expect(screen.getByText('?')).toBeInTheDocument();
         });
       }
     }
@@ -160,9 +156,7 @@ describe('MainPage', () => {
     // Play all 10 rounds correctly
     const answers = [1, 4, 9, 16, 25, 36, 49, 64, 81, 100];
     for (let i = 0; i < 10; i++) {
-      const input = screen.getByRole('textbox');
-      await user.type(input, String(answers[i]));
-      await user.click(screen.getByRole('button', { name: /submit/i }));
+      await user.keyboard(`${answers[i]}{Enter}`);
 
       act(() => {
         vi.advanceTimersByTime(FEEDBACK_DURATION_MS + 50);
@@ -170,7 +164,7 @@ describe('MainPage', () => {
 
       if (i < 9) {
         await waitFor(() => {
-          expect(screen.getByRole('textbox')).toBeInTheDocument();
+          expect(screen.getByText('?')).toBeInTheDocument();
         });
       }
     }
@@ -197,9 +191,7 @@ describe('MainPage', () => {
     // Play all 10 rounds correctly
     const answers = [1, 4, 9, 16, 25, 36, 49, 64, 81, 100];
     for (let i = 0; i < 10; i++) {
-      const input = screen.getByRole('textbox');
-      await user.type(input, String(answers[i]));
-      await user.click(screen.getByRole('button', { name: /submit/i }));
+      await user.keyboard(`${answers[i]}{Enter}`);
 
       act(() => {
         vi.advanceTimersByTime(FEEDBACK_DURATION_MS + 50);
@@ -207,7 +199,7 @@ describe('MainPage', () => {
 
       if (i < 9) {
         await waitFor(() => {
-          expect(screen.getByRole('textbox')).toBeInTheDocument();
+          expect(screen.getByText('?')).toBeInTheDocument();
         });
       }
     }
@@ -231,7 +223,7 @@ describe('MainPage', () => {
 });
 
 /**
- * Helper: play through a round by typing answer and clicking submit,
+ * Helper: play through a round by typing answer via keyboard and pressing Enter,
  * then advancing past the feedback timeout.
  */
 async function playRound(
@@ -239,9 +231,7 @@ async function playRound(
   answer: string,
   isLastRound = false,
 ) {
-  const input = screen.getByRole('textbox');
-  await user.type(input, answer);
-  await user.click(screen.getByRole('button', { name: /submit/i }));
+  await user.keyboard(`${answer}{Enter}`);
 
   act(() => {
     vi.advanceTimersByTime(FEEDBACK_DURATION_MS + 50);
@@ -249,7 +239,7 @@ async function playRound(
 
   if (!isLastRound) {
     await waitFor(() => {
-      expect(screen.getByRole('textbox')).toBeInTheDocument();
+      expect(screen.getByText('?')).toBeInTheDocument();
     });
   }
 }
@@ -326,9 +316,7 @@ describe('MainPage — Replay UI (US2)', () => {
     });
 
     // Now answer the replayed round correctly (3×3=9)
-    const input = screen.getByRole('textbox');
-    await user.type(input, '9');
-    await user.click(screen.getByRole('button', { name: /submit/i }));
+    await user.keyboard('9{Enter}');
 
     act(() => {
       vi.advanceTimersByTime(FEEDBACK_DURATION_MS + 50);
@@ -365,9 +353,7 @@ describe('MainPage — Replay UI (US2)', () => {
     });
 
     // Answer incorrectly again — should re-queue
-    const input = screen.getByRole('textbox');
-    await user.type(input, '888');
-    await user.click(screen.getByRole('button', { name: /submit/i }));
+    await user.keyboard('888{Enter}');
 
     act(() => {
       vi.advanceTimersByTime(FEEDBACK_DURATION_MS + 50);
@@ -379,9 +365,7 @@ describe('MainPage — Replay UI (US2)', () => {
     });
 
     // Now answer correctly to end the game
-    const input2 = screen.getByRole('textbox');
-    await user.type(input2, '1');
-    await user.click(screen.getByRole('button', { name: /submit/i }));
+    await user.keyboard('1{Enter}');
 
     act(() => {
       vi.advanceTimersByTime(FEEDBACK_DURATION_MS + 50);
@@ -463,9 +447,7 @@ describe('MainPage — Replay UI (US2)', () => {
     });
 
     // Submit correct answer in replay
-    const input = screen.getByRole('textbox');
-    await user.type(input, '1');
-    await user.click(screen.getByRole('button', { name: /submit/i }));
+    await user.keyboard('1{Enter}');
 
     // Inline feedback should appear
     expect(screen.getByText('Correct!')).toBeInTheDocument();
@@ -495,9 +477,7 @@ describe('MainPage — Scoring Display (US3)', () => {
     await user.click(screen.getByRole('button', { name: /^play/i }));
 
     // Answer round 1 correctly (1×1=1)
-    const input = screen.getByRole('textbox');
-    await user.type(input, '1');
-    await user.click(screen.getByRole('button', { name: /submit/i }));
+    await user.keyboard('1{Enter}');
 
     // During feedback phase, score is hidden (panel shows feedback).
     // Advance past feedback duration to see updated score in next round.
@@ -546,9 +526,7 @@ describe('MainPage — Scoring Display (US3)', () => {
     });
 
     for (let i = 0; i < 10; i++) {
-      const input = screen.getByRole('textbox');
-      await user.type(input, String(correctAnswers[i]));
-      await user.click(screen.getByRole('button', { name: /submit/i }));
+      await user.keyboard(`${correctAnswers[i]}{Enter}`);
 
       act(() => {
         vi.advanceTimersByTime(FEEDBACK_DURATION_MS + 50);
@@ -556,7 +534,7 @@ describe('MainPage — Scoring Display (US3)', () => {
 
       if (i < 9) {
         await waitFor(() => {
-          expect(screen.getByRole('textbox')).toBeInTheDocument();
+          expect(screen.getByText('?')).toBeInTheDocument();
         });
       }
     }
@@ -593,9 +571,7 @@ describe('MainPage — Scoring Display (US3)', () => {
       expect(screen.getByText(/Replay/i)).toBeInTheDocument();
     });
 
-    const input = screen.getByRole('textbox');
-    await user.type(input, '1');
-    await user.click(screen.getByRole('button', { name: /submit/i }));
+    await user.keyboard('1{Enter}');
 
     act(() => {
       vi.advanceTimersByTime(FEEDBACK_DURATION_MS + 50);
@@ -665,9 +641,7 @@ describe('MainPage — Inline Feedback (US2 round UX)', () => {
     await user.click(screen.getByRole('button', { name: /^play/i }));
 
     // Submit correct answer for round 1 (1×1=1)
-    const input = screen.getByRole('textbox');
-    await user.type(input, '1');
-    await user.click(screen.getByRole('button', { name: /submit/i }));
+    await user.keyboard('1{Enter}');
 
     // Formula should still be visible (answered formula with playerAnswer)
     expect(screen.getByRole('math')).toBeInTheDocument();

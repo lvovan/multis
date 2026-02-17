@@ -127,16 +127,13 @@ describe('Improve Mode — Score Isolation', () => {
     // Play through all 10 rounds
     for (let i = 0; i < 10; i++) {
       const answer = getCorrectAnswer(formulas[i]);
-      const input = screen.getByRole('textbox');
-      await user.clear(input);
-      await user.type(input, String(answer));
-      await user.click(screen.getByRole('button', { name: /submit/i }));
+      await user.keyboard(`${answer}{Enter}`);
       act(() => {
         vi.advanceTimersByTime(FEEDBACK_DURATION_MS + 50);
       });
       if (i < 9) {
         await waitFor(() => {
-          expect(screen.getByRole('textbox')).toBeInTheDocument();
+          expect(screen.getByText('?')).toBeInTheDocument();
         });
       }
     }
@@ -166,16 +163,13 @@ describe('Improve Mode — Score Isolation', () => {
 
     for (let i = 0; i < 10; i++) {
       const answer = getCorrectAnswer(formulas[i]);
-      const input = screen.getByRole('textbox');
-      await user.clear(input);
-      await user.type(input, String(answer));
-      await user.click(screen.getByRole('button', { name: /submit/i }));
+      await user.keyboard(`${answer}{Enter}`);
       act(() => {
         vi.advanceTimersByTime(FEEDBACK_DURATION_MS + 50);
       });
       if (i < 9) {
         await waitFor(() => {
-          expect(screen.getByRole('textbox')).toBeInTheDocument();
+          expect(screen.getByText('?')).toBeInTheDocument();
         });
       }
     }
@@ -203,16 +197,13 @@ describe('Improve Mode — Score Isolation', () => {
 
     for (let i = 0; i < 10; i++) {
       const answer = getCorrectAnswer(formulas[i]);
-      const input = screen.getByRole('textbox');
-      await user.clear(input);
-      await user.type(input, String(answer));
-      await user.click(screen.getByRole('button', { name: /submit/i }));
+      await user.keyboard(`${answer}{Enter}`);
       act(() => {
         vi.advanceTimersByTime(FEEDBACK_DURATION_MS + 50);
       });
       if (i < 9) {
         await waitFor(() => {
-          expect(screen.getByRole('textbox')).toBeInTheDocument();
+          expect(screen.getByText('?')).toBeInTheDocument();
         });
       }
     }
@@ -340,10 +331,7 @@ describe('Improve Mode — No Countdown Bar', () => {
 
     // Verify answer submission still works and game records elapsedMs
     const answer = getCorrectAnswer(formulas[0]);
-    const input = screen.getByRole('textbox');
-    await user.clear(input);
-    await user.type(input, String(answer));
-    await user.click(screen.getByRole('button', { name: /submit/i }));
+    await user.keyboard(`${answer}{Enter}`);
 
     act(() => {
       vi.advanceTimersByTime(FEEDBACK_DURATION_MS + 50);
@@ -351,7 +339,7 @@ describe('Improve Mode — No Countdown Bar', () => {
 
     // Check that the game continued (next round input appears)
     await waitFor(() => {
-      expect(screen.getByRole('textbox')).toBeInTheDocument();
+      expect(screen.getByText('?')).toBeInTheDocument();
     });
   }, 15000);
 
@@ -364,16 +352,13 @@ describe('Improve Mode — No Countdown Bar', () => {
     // Play through all 10 rounds
     for (let i = 0; i < 10; i++) {
       const answer = getCorrectAnswer(formulas[i]);
-      const input = screen.getByRole('textbox');
-      await user.clear(input);
-      await user.type(input, String(answer));
-      await user.click(screen.getByRole('button', { name: /submit/i }));
+      await user.keyboard(`${answer}{Enter}`);
       act(() => {
         vi.advanceTimersByTime(FEEDBACK_DURATION_MS + 50);
       });
       if (i < 9) {
         await waitFor(() => {
-          expect(screen.getByRole('textbox')).toBeInTheDocument();
+          expect(screen.getByText('?')).toBeInTheDocument();
         });
       }
     }
@@ -440,16 +425,13 @@ describe('Improve Mode — Full Flow Integration', () => {
     // 4. Play through all 10 rounds correctly
     for (let i = 0; i < 10; i++) {
       const answer = getCorrectAnswer(formulas[i]);
-      const input = screen.getByRole('textbox');
-      await user.clear(input);
-      await user.type(input, String(answer));
-      await user.click(screen.getByRole('button', { name: /submit/i }));
+      await user.keyboard(`${answer}{Enter}`);
       act(() => {
         vi.advanceTimersByTime(FEEDBACK_DURATION_MS + 50);
       });
       if (i < 9) {
         await waitFor(() => {
-          expect(screen.getByRole('textbox')).toBeInTheDocument();
+          expect(screen.getByText('?')).toBeInTheDocument();
         });
       }
     }

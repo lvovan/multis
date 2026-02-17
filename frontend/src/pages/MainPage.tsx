@@ -3,6 +3,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { useSession } from '../hooks/useSession.tsx';
 import { useGame } from '../hooks/useGame';
 import { useRoundTimer } from '../hooks/useRoundTimer';
+import { useAnswerInput } from '../hooks/useAnswerInput';
 import { saveGameRecord, getPlayers, getRecentHighScores, getGameHistory } from '../services/playerStorage';
 import { extractRoundResults } from '../services/gameEngine';
 import { getChallengingPairsForPlayer, extractTrickyNumbers } from '../services/challengeAnalyzer';
@@ -33,6 +34,39 @@ export default function MainPage() {
   const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scorePersistedRef = useRef(false);
   const prevStatusRef = useRef(gameState.status);
+
+  const handleSubmit = useCallback(
+    (answer: number) => {
+      const elapsed = stop();
+      const prevRound = currentRound;
+      submitAnswer(answer, elapsed);
+      if (prevRound) {
+        const correct = answer === (prevRound.formula.hiddenPosition === 'C'
+          ? prevRound.formula.product
+          : prevRound.formula.hiddenPosition === 'A'
+            ? prevRound.formula.factorA
+            : prevRound.formula.factorB);
+        trackAnswerSubmitted(correct, elapsed);
+      }
+
+      // Show feedback for FEEDBACK_DURATION_MS, then advance
+      feedbackTimeoutRef.current = setTimeout(() => {
+        nextRound();
+        reset();
+        start();
+        feedbackTimeoutRef.current = null;
+      }, FEEDBACK_DURATION_MS);
+    },
+    [stop, submitAnswer, nextRound, reset, start, currentRound],
+  );
+
+  const { typedDigits, handleDigit, handleBackspace, handleSubmit: hookSubmit, reset: resetInput } =
+    useAnswerInput({ onSubmit: handleSubmit });
+
+  // Reset typed digits on round change
+  useEffect(() => {
+    resetInput();
+  }, [gameState.currentRoundIndex, resetInput]);
 
   // Track replay phase transitions
   useEffect(() => {
@@ -72,31 +106,6 @@ export default function MainPage() {
     trackGameStarted('improve');
     start();
   }, [startGame, start, session]);
-
-  const handleSubmit = useCallback(
-    (answer: number) => {
-      const elapsed = stop();
-      const prevRound = currentRound;
-      submitAnswer(answer, elapsed);
-      if (prevRound) {
-        const correct = answer === (prevRound.formula.hiddenPosition === 'C'
-          ? prevRound.formula.product
-          : prevRound.formula.hiddenPosition === 'A'
-            ? prevRound.formula.factorA
-            : prevRound.formula.factorB);
-        trackAnswerSubmitted(correct, elapsed);
-      }
-
-      // Show feedback for FEEDBACK_DURATION_MS, then advance
-      feedbackTimeoutRef.current = setTimeout(() => {
-        nextRound();
-        reset();
-        start();
-        feedbackTimeoutRef.current = null;
-      }, FEEDBACK_DURATION_MS);
-    },
-    [stop, submitAnswer, nextRound, reset, start, currentRound],
-  );
 
   const handlePlayAgain = useCallback(() => {
     if (feedbackTimeoutRef.current) {
@@ -181,11 +190,16 @@ export default function MainPage() {
                     ? currentRound.playerAnswer ?? undefined
                     : undefined
                 }
+                typedDigits={typedDigits}
+                isInputPhase={gameState.currentPhase === 'input'}
               />
             </div>
 
             <AnswerInput
-              onSubmit={handleSubmit}
+              typedDigits={typedDigits}
+              onDigit={handleDigit}
+              onBackspace={handleBackspace}
+              onSubmit={hookSubmit}
               acceptingInput={gameState.currentPhase === 'input'}
             />
           </div>
