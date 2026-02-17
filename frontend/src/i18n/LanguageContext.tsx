@@ -3,6 +3,7 @@ import type { Language } from '../types/i18n';
 import type { TranslationKey, Dictionary } from './index';
 import { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES, interpolate } from './index';
 import { detectLanguage } from './detectLanguage';
+import { setLanguageTag } from '../services/clarityService';
 import en from './locales/en';
 import fr from './locales/fr';
 import es from './locales/es';
@@ -72,6 +73,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
   // Sync <html lang="..."> attribute on every language change
   useEffect(() => {
     document.documentElement.lang = language;
+    setLanguageTag(language);
   }, [language]);
 
   const setLanguage = useCallback((lang: Language) => {
