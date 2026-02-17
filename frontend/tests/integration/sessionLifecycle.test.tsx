@@ -54,7 +54,7 @@ describe('Session Lifecycle', () => {
       avatarId: 'cat',
       startedAt: 1000,
     };
-    sessionStorage.setItem('turbotiply_session', JSON.stringify(session));
+    sessionStorage.setItem('multis_session', JSON.stringify(session));
 
     render(<TestApp />);
     expect(screen.getByTestId('active').textContent).toBe('true');
@@ -69,7 +69,7 @@ describe('Session Lifecycle', () => {
       avatarId: 'cat',
       startedAt: 1000,
     };
-    sessionStorage.setItem('turbotiply_session', JSON.stringify(session));
+    sessionStorage.setItem('multis_session', JSON.stringify(session));
 
     render(<TestApp />);
 
