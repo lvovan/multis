@@ -47,24 +47,28 @@ export default function ScoreSummary({ rounds, score, onPlayAgain, onBackToMenu,
 
   return (
     <div className={styles.summary}>
-      {isImprove ? (
-        <>
-          <h2 className={styles.heading}>{t('summary.correctCount', { count: String(correctCount), total: String(rounds.length) })}</h2>
-          {incorrectPairs.length > 0 && (
-            <p className={styles.practiceHint}>
-              {t('summary.practiceHint', { pairs: incorrectPairs.join(', ') })}
-            </p>
-          )}
-        </>
-      ) : (
-        <>
-          <h2 className={styles.heading}>{t('summary.gameOver')}</h2>
-          <div className={styles.totalScore}>
-            <span className={styles.totalLabel}>{t('summary.totalScore')}</span>
-            <span className={styles.totalValue}>{score}</span>
-          </div>
-        </>
+      {!isImprove && (
+        <div className={styles.scoreCenter}>
+          <span className={styles.totalLabel}>{t('summary.totalScore')}</span>
+          <span className={styles.totalValue}>{score}</span>
+        </div>
       )}
+      {isImprove ? (
+        <div className={styles.headerLeft}>
+          <span className={styles.heading}>{t('summary.correctCount', { count: String(correctCount), total: String(rounds.length) })}</span>
+        </div>
+      ) : null}
+      {isImprove && incorrectPairs.length > 0 && (
+        <div className={styles.practiceHint}>{t('summary.practiceHint', { pairs: incorrectPairs.join(', ') })}</div>
+      )}
+      <div className={styles.actionsRow}>
+        <button className={styles.playAgainButton} onClick={onPlayAgain} aria-label={t('summary.playAgain')} tabIndex={0}>
+          {t('summary.playAgain')}
+        </button>
+        <button className={styles.backButton} onClick={onBackToMenu} aria-label={t('summary.backToMenu')} tabIndex={0}>
+          {t('summary.backToMenu')}
+        </button>
+      </div>
 
       {!isImprove && history && <ProgressionGraph history={history} />}
 
@@ -83,9 +87,21 @@ export default function ScoreSummary({ rounds, score, onPlayAgain, onBackToMenu,
           <tbody>
             {rounds.map((round, index) => {
               const correctAnswer = getCorrectAnswer(round.formula);
+              let rowClass = '';
+              if (round.points === null) {
+                rowClass = styles.neutralRow;
+              } else if (round.points >= 5) {
+                rowClass = '';
+              } else if (round.points >= 3) {
+                rowClass = styles.orangeRow;
+              } else if (round.points < 0) {
+                rowClass = styles.redRow;
+              } else {
+                rowClass = styles.incorrectRow;
+              }
               return (
-                <tr key={index} className={round.isCorrect ? styles.correctRow : styles.incorrectRow}>
-                  <td>{index + 1}</td>
+                <tr key={index} className={rowClass}>
+                  <td className={styles.noBg}>{index + 1}</td>
                   <td>{formatFormula(round)}</td>
                   <td>
                     {round.playerAnswer ?? '—'}
@@ -105,15 +121,6 @@ export default function ScoreSummary({ rounds, score, onPlayAgain, onBackToMenu,
             })}
           </tbody>
         </table>
-      </div>
-
-      <div className={styles.actions}>
-        <button className={styles.playAgainButton} onClick={onPlayAgain}>
-          {t('summary.playAgain')}
-        </button>
-        <button className={styles.backButton} onClick={onBackToMenu}>
-          {t('summary.backToMenu')}
-        </button>
       </div>
     </div>
   );

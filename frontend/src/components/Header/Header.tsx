@@ -34,7 +34,15 @@ export default function Header() {
       ) : (
         <div className={styles.leftSection} />
       )}
-      <span className={styles.title}>Multis!</span>
+      <a
+        className={styles.title}
+        href="https://www.buymeacoffee.com/lucvovan"
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Support Multis! on BuyMeACoffee"
+      >
+        Multis!
+      </a>
       <div className={styles.actions}>
         <LanguageSwitcher />
         {isActive && session && (
